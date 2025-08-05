@@ -71,7 +71,7 @@ public class SolicitacaoPagamento {
 
 
     // Metodos para manipulacao de arquivos com OpenCsv
-    public static String[] criarCabecalhoCsv() {
+    public String[] criarCabecalhoCsv() {
         return new String[] {
                 "id",
                 "idPedido",

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Arquivo {
 
-    public static void lerArquivoCsv(String nomeArquivo) throws Exception {
+    public void lerArquivoCsv(String nomeArquivo) throws Exception {
         try {
             InputStream inputStream = Arquivo.class.getClassLoader().getResourceAsStream(nomeArquivo);
             CSVReader reader = new CSVReader(new InputStreamReader(inputStream));
@@ -27,7 +27,7 @@ public class Arquivo {
         }
     }
 
-    public static void escreverArquivoCsv(String nomeArquivo, SolicitacaoPagamento solicitacaoPagamento) throws Exception {
+    public void escreverArquivoCsv(String nomeArquivo, SolicitacaoPagamento solicitacaoPagamento) throws Exception {
         try {
             File arquivo = new File(nomeArquivo);
             boolean novoArquivo = !arquivo.exists() || arquivo.length() == 0;

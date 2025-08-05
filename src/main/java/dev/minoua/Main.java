@@ -11,8 +11,11 @@ public class Main {
 
         SolicitacaoPagamento solicitacao = new SolicitacaoPagamento(6, 1, new PixPagamento("mariofabio@mail.com"),"Processando", 99.99);
 
-        arquivo.lerArquivoCsv(arquivoEntrada);
-        arquivo.escreverArquivoCsv(arquivoSaida, solicitacao);
-
+        try{
+            arquivo.lerArquivoCsv(arquivoEntrada);
+            arquivo.escreverArquivoCsv(arquivoSaida, solicitacao);
+        } catch (Exception e){
+            System.out.println("Erro: " + e.getMessage());
+        }
     }
 }
