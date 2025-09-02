@@ -1,7 +1,6 @@
-package dev.minoua.model.domain;
+package dev.minoua.model;
 
 
-import java.sql.Array;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 

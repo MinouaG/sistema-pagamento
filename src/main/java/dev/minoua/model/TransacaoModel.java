@@ -1,4 +1,4 @@
-package dev.minoua.model.domain;
+package dev.minoua.model;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +17,7 @@ public class Transacao {
         this.valor = valor;
     }
 
-    public Transacao(int id, int idSolicitacaoPagamento, double valor) {
+    public Transacao(Long id, Long idSolicitacaoPagamento, double valor) {
         this.id = id;
         this.idSolicitacaoPagamento = idSolicitacaoPagamento;
         this.valor = valor;

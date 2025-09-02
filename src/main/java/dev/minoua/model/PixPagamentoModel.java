@@ -1,4 +1,4 @@
-package dev.minoua.model.domain;
+package dev.minoua.model;
 
 public class PixPagamento extends FormaPagamento{
     private String chave;

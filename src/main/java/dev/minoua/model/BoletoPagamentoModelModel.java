@@ -1,4 +1,4 @@
-package dev.minoua.model.domain;
+package dev.minoua.model;
 
 import java.util.Date;
 
