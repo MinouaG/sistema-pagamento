@@ -2,33 +2,25 @@ package dev.minoua.model;
 
 import java.time.LocalDateTime;
 
-public class Transacao {
-    private int id;
+public class TransacaoModel extends Model {
+    private Long id;
     private LocalDateTime dataHora;
-    private int idSolicitacaoPagamento;
+    private Long idSolicitacaoPagamento;
     private String status = "Processando";
     private double valor;
 
-    public Transacao(int id, LocalDateTime dataHora, int idSolicitacaoPagamento, String status, double valor) {
-        this.id = id;
+    public TransacaoModel(Long id, LocalDateTime dataHora, Long idSolicitacaoPagamento, String status, double valor) {
+        this.setId(id);
         this.dataHora = dataHora;
         this.idSolicitacaoPagamento = idSolicitacaoPagamento;
         this.status = status;
         this.valor = valor;
     }
 
-    public Transacao(Long id, Long idSolicitacaoPagamento, double valor) {
-        this.id = id;
+    public TransacaoModel(Long id, Long idSolicitacaoPagamento, double valor) {
+        this.setId(id);
         this.idSolicitacaoPagamento = idSolicitacaoPagamento;
         this.valor = valor;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public LocalDateTime getDataHora() {

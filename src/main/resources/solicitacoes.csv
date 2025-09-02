@@ -1,4 +1,4 @@
-id,idPedido,formaPagamento,status,valor
+id,idPedido,formaPagamentoModel,status,valor
 1,2,boleto:00123521561,Pendente,599.99, 06-07-2025 13:12:19
 2,3,wellington@mail.com,Processando,59.99, 25-07-2025 16:18:35
 3,4,boleto:6344354354354,Recusada,102.50, 11-07-2025 22:09:21

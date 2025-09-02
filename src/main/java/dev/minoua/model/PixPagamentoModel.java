@@ -1,19 +1,19 @@
 package dev.minoua.model;
 
-public class PixPagamento extends FormaPagamento{
-    private String chave;
+public class PixPagamentoModel extends FormaPagamentoModel {
+    private String codigo;
 
-    public PixPagamento(String chave) {
-        this.chave = chave;
+    public PixPagamentoModel(String codigo) {
+        this.codigo = codigo;
     }
 
-    public String getChave() {
-        return chave;
+    public String getCodigo() {
+        return codigo;
     }
 
     @Override
     public String toString() {
-        return "Pix:" + chave;
+        return "Pix:" + codigo;
     }
 
 }

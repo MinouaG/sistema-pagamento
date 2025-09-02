@@ -2,7 +2,7 @@ package dev.minoua.model;
 
 import java.util.Date;
 
-public class CartaoPagamento extends FormaPagamento{
+public class CartaoPagamentoModel extends FormaPagamentoModel {
     private String numero;
     private String nomeTitular;
     private String cpfTitular;

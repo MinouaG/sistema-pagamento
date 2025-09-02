@@ -1,6 +1,8 @@
 package dev.minoua;
 
-import dev.minoua.model.domain.*;
+import dev.minoua.model.Arquivo;
+import dev.minoua.model.PixPagamentoModel;
+import dev.minoua.model.SolicitacaoPagamentoModel;
 
 public class Main {
     final static String arquivoEntrada = "solicitacoes.csv";
@@ -9,7 +11,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Arquivo arquivo = new Arquivo();
 
-        SolicitacaoPagamento solicitacao = new SolicitacaoPagamento(6, 1, new PixPagamento("mariofabio@mail.com"),"Processando", 99.99);
+        SolicitacaoPagamentoModel solicitacao = new SolicitacaoPagamentoModel(6L, 1L, new PixPagamentoModel("mariofabio@mail.com"),"Processando", 99.99f);
 
         try{
             arquivo.lerArquivoCsv(arquivoEntrada);

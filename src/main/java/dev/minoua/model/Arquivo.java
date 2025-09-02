@@ -1,4 +1,4 @@
-package dev.minoua.model.domain;
+package dev.minoua.model;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -27,7 +27,7 @@ public class Arquivo {
         }
     }
 
-    public void escreverArquivoCsv(String nomeArquivo, SolicitacaoPagamento solicitacaoPagamento) throws Exception {
+    public void escreverArquivoCsv(String nomeArquivo, SolicitacaoPagamentoModel solicitacaoPagamentoModel) throws Exception {
         try {
             File arquivo = new File(nomeArquivo);
             boolean novoArquivo = !arquivo.exists() || arquivo.length() == 0;
@@ -38,9 +38,9 @@ public class Arquivo {
                     CSVWriter.DEFAULT_LINE_END
             );
             if (novoArquivo) {
-                writer.writeNext(solicitacaoPagamento.criarCabecalhoCsv());
+                writer.writeNext(solicitacaoPagamentoModel.criarCabecalhoCsv());
             }
-            writer.writeNext(solicitacaoPagamento.criarLinhaCsv());
+            writer.writeNext(solicitacaoPagamentoModel.criarLinhaCsv());
             writer.close();
 
         } catch (Exception e) {

@@ -1,22 +1,5 @@
 package dev.minoua.model;
 
-public abstract class FormaPagamento {
-    private int id;
-    private boolean dadosValidos = false;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public boolean isDadosValidos() {
-        return dadosValidos;
-    }
-
-
-    public static boolean validarDados(){return false;}
-    public static String retornarResultado(boolean resultadoValidacao){return null;}
+public abstract class FormaPagamentoModel extends Model {
+    public boolean validarDados() { return false; }
 }
