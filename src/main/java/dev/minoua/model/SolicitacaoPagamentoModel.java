@@ -1,86 +1,121 @@
 package dev.minoua.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SolicitacaoPagamentoModel extends Model {
+import static java.lang.Long.parseLong;
+
+@Getter
+@Setter
+public class SolicitacaoPagamentoModel extends Model<SolicitacaoPagamentoModel> {
     private Long idPedido;
-    private FormaPagamentoModel formaPagamentoModel;
-    private String status = "Pendente";
+    private StatusPagamento status = StatusPagamento.PENDENTE;
     private float valorTotal;
+    @JsonIgnore
+    private FormaPagamentoModel formaPagamentoModel;
 
     // Construtor
-    public SolicitacaoPagamentoModel(Long id, Long idPedido, FormaPagamentoModel formaPagamentoModel, String statusPagamento, float valorTotal) {
-        this.setId(id);
-        this.idPedido = idPedido;
-        this.formaPagamentoModel = formaPagamentoModel;
-        this.status = statusPagamento;
-        this.valorTotal = valorTotal;
-        this.setCreatedAt(LocalDateTime.now());
+    public SolicitacaoPagamentoModel() {
+        super("solicitacoes_pagamento.csv");
     }
 
-    // Getters e Setters
-
-    public Long getIdPedido() { return idPedido; }
-    public void setIdPedido(Long idPedido) { this.idPedido = idPedido; }
-
-    public FormaPagamentoModel getFormaPagamento() { return formaPagamentoModel; }
-    public void setFormaPagamento(FormaPagamentoModel formaPagamentoModel) { this.formaPagamentoModel = formaPagamentoModel; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public double getValorTotal() { return valorTotal; }
-    public void setValorTotal(float valorTotal) { this.valorTotal = valorTotal; }
-
-    // Metodos de negocio
-    public void atualizarStatus(String novoStatus) {
+    // Metodos de regras de negocio
+    public void atualizarStatus(StatusPagamento novoStatus) {
         this.status = novoStatus;
+        this.setUpdatedAt(LocalDateTime.now());
+        this.update(this.getId(), this);
     }
 
-    public TransacaoModel gerarTransacao(Long idTransacao) {
-        return new TransacaoModel(idTransacao, this.getId(), this.valorTotal);
-    }
-
-    public boolean validarTransacao(TransacaoModel transacao) {
-        if (transacao.validarTransacao()){
-            this.atualizarStatus("Aprovado");
-            return true;
+    public void atualizarStatusPorRespostaTransacao(String respostaTransacao) {
+        if ("APROVADO".equalsIgnoreCase(respostaTransacao)) {
+            this.setStatus(StatusPagamento.APROVADO);
+        } else if ("RECUSADO".equalsIgnoreCase(respostaTransacao)) {
+            this.setStatus(StatusPagamento.RECUSADO);
+        } else if ("PENDENTE".equalsIgnoreCase(respostaTransacao)) {
+            this.setStatus(StatusPagamento.PENDENTE);
+        } else {
+            this.setStatus(StatusPagamento.FORMA_PAGAMENTO_INVALIDA);
         }
-        this.atualizarStatus("Recusado");
-        return false;
+        this.setUpdatedAt(LocalDateTime.now());
+        this.update(this.getId(), this);
     }
 
-    public TransacaoModel validarDadosPagamento(Long idTransacao){
-        if (this.formaPagamentoModel.validarDados()) {
-            return this.gerarTransacao(idTransacao);
+    public TransacaoModel gerarTransacao() {
+        List<TransacaoModel> transacoes = new TransacaoModel().list();
+        long maxId = 0L;
+        for (TransacaoModel t : transacoes) {
+            if (t.getId() != null && t.getId() > maxId) {
+                maxId = t.getId();
+            }
         }
-        this.atualizarStatus("Forma de pagamento invalida.");
+        long novoId = maxId + 1;
+        TransacaoModel transacao = new TransacaoModel();
+        transacao.setId(novoId);
+        transacao.setIdSolicitacaoPagamento(this.getId());
+        transacao.setValorTotal(this.valorTotal);
+        transacao.setFormaPagamento(this.formaPagamentoModel);
+        transacao.save(transacao);
+        this.formaPagamentoModel.save(formaPagamentoModel);
+        this.setStatus(StatusPagamento.PROCESSANDO);
+        transacao.setFormaPagamento(this.formaPagamentoModel);
+
+        return transacao;
+    }
+
+
+    public TransacaoModel validarDadosPagamento() {
+        if (this.formaPagamentoModel != null && this.formaPagamentoModel.validarDados()) {
+            return this.gerarTransacao();
+        }
+        this.atualizarStatus(StatusPagamento.FORMA_PAGAMENTO_INVALIDA);
         return null;
     }
 
+    @Override
+    public SolicitacaoPagamentoModel fromCSV(String csvLine) {
+        try {
+            String[] values = csvLine.split(",");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    // Metodos para manipulacao de arquivos com OpenCsv
-    public String[] criarCabecalhoCsv() {
-        return new String[] {
-                "id",
-                "idPedido",
-                "formaPagamento",
-                "statusPagamento",
-                "valor",
-                "dataSolicitacao"
-        };
+            SolicitacaoPagamentoModel obj = new SolicitacaoPagamentoModel();
+
+            obj.setId(parseLong(values[0]));
+            obj.setCreatedAt(values[1].equals("null") ? null : LocalDateTime.parse(values[1], formatter));
+            obj.setUpdatedAt(values[2].equals("null") ? null : LocalDateTime.parse(values[2], formatter));
+            obj.setIdPedido("null".equals(values[3]) ? null : parseLong(values[3]));
+            obj.setStatus(StatusPagamento.valueOf(values[4]));
+            obj.setValorTotal(Float.parseFloat(values[5]));
+
+            return obj;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public String[] criarLinhaCsv() {
-        return new String[] {
-                String.valueOf(this.getId()),
-                String.valueOf(idPedido),
-                formaPagamentoModel.toString(),
-                status,
-                String.valueOf(valorTotal),
-                this.getCreatedAt().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"))
-        };
+    @Override
+    public String toCSV() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return String.join(",",
+            String.valueOf(getId()),
+            getCreatedAt() == null ? "null" : getCreatedAt().format(formatter),
+            getUpdatedAt() == null ? "null" : getUpdatedAt().format(formatter),
+            String.valueOf(getIdPedido()),
+            status.name(),
+            String.valueOf(getValorTotal())
+        );
+    }
+
+
+    @Override
+    public List<String> getCsvFieldOrder() {
+        return List.of("id","createdAt","updatedAt","idPedido","status","valorTotal");
     }
 }

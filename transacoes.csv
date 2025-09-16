@@ -1,0 +1,10 @@
+id,createdAt,updatedAt,idSolicitacaoPagamento,status,valorTotal,tipoPagamento
+2,2025-09-11 00:04:34,null,2,PENDENTE,150.0,pix
+3,2025-09-15 15:53:08,null,3,PENDENTE,150.0,pix
+4,2025-09-15 16:00:00,null,4,APROVADO,200.0,pix
+5,2025-09-15 16:05:00,null,5,RECUSADO,300.0,pix
+6,2025-09-15 16:10:00,null,6,PENDENTE,450.0,invalido
+7,2025-09-15 16:15:00,null,7,APROVADO,120.0,pix
+8,2025-09-15 16:20:00,null,8,PENDENTE,0.0,invalido
+9,2025-09-11 00:02:57,2025-09-15 21:53:40,10,RECUSADO,0.0,invalido
+10,2025-09-15 16:30:00,2025-09-15 21:54:36,10,RECUSADO,0.0,invalido

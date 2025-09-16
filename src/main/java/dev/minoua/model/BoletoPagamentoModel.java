@@ -1,53 +1,56 @@
 package dev.minoua.model;
 
-import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.Date;
+import java.util.List;
+
+@Getter
+@Setter
 public class BoletoPagamentoModel extends FormaPagamentoModel {
     private String codigo;
     private String nome;
     private Date dataVencimento;
     private String cpf;
 
-    public String getCodigo() {
-        return codigo;
+   public BoletoPagamentoModel() {
+        super("boletos_pagamento.csv");
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    @Override
+    public String getTipo() {
+        return "BOLETO";
     }
 
-    public String getNome() {
-        return nome;
+    @Override
+    public List<String> getCsvFieldOrder() {
+        return List.of("id", "createdAt", "updatedAt", "codigo", "nome", "dataVencimento", "cpf");
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    @Override
+    public BoletoPagamentoModel fromCSV(String csvLine) {
+        try {
+            String[] values = csvLine.split(",");
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            BoletoPagamentoModel obj = new BoletoPagamentoModel();
+            obj.setId(Long.parseLong(values[0]));
+            obj.setCreatedAt(values[1].equals("null") ? null : java.time.LocalDateTime.parse(values[1], formatter));
+            obj.setUpdatedAt(values[2].equals("null") ? null : java.time.LocalDateTime.parse(values[2], formatter));
+            obj.setCodigo(values[3]);
+            obj.setNome(values[4]);
+            obj.setDataVencimento(values[5].equals("null") ? null : sdf.parse(values[5]));
+            obj.setCpf(values[6]);
+            return obj;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    public Date getDataVencimento() {
-        return dataVencimento;
-    }
-
-    public void setDataVencimento(Date dataVencimento) {
-        this.dataVencimento = dataVencimento;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
-    public BoletoPagamentoModel(String codigo, String nome, Date dataVencimento, String cpf) {
-        this.codigo = codigo;
-        this.nome = nome;
-        this.dataVencimento = dataVencimento;
-        this.cpf = cpf;
-    }
-
-    public String toString(){
-        return "Boleto"+codigo;
+    @Override
+    public boolean validarDados() {
+        return true;
     }
 }
