@@ -18,10 +18,7 @@ public class BoletoPagamentoModel extends FormaPagamentoModel {
         super("boletos_pagamento.csv");
     }
 
-    @Override
-    public String getTipo() {
-        return "BOLETO";
-    }
+
 
     @Override
     public List<String> getCsvFieldOrder() {

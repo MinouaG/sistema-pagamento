@@ -19,10 +19,7 @@ public class CartaoPagamentoModel extends FormaPagamentoModel {
         super("cartoes_pagamento.csv");
     }
 
-    @Override
-    public String getTipo() {
-        return "CARTAO";
-    }
+
     @Override
     public CartaoPagamentoModel fromCSV(String csvLine) {
         try {
@@ -37,7 +34,7 @@ public class CartaoPagamentoModel extends FormaPagamentoModel {
             obj.setNomeTitular(values[4]);
             obj.setCpfTitular(values[5]);
             obj.setValidade(values[6].equals("null") ? null : sdf.parse(values[6]));
-            obj.setCvv(Integer.parseInt(values[5]));
+            obj.setCvv(Integer.parseInt(values[7]));
             return obj;
         } catch (Exception e) {
             e.printStackTrace();

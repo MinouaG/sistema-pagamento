@@ -1,47 +1,40 @@
 package dev.minoua.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Long.parseLong;
 
 @Getter
 @Setter
 public class SolicitacaoPagamentoModel extends Model<SolicitacaoPagamentoModel> {
     private Long idPedido;
-    private StatusPagamento status = StatusPagamento.PENDENTE;
-    private float valorTotal;
+    private StatusPagamento status;
+    private Float valorTotal;
+
     @JsonIgnore
     private FormaPagamentoModel formaPagamentoModel;
 
-    // Construtor
     public SolicitacaoPagamentoModel() {
         super("solicitacoes_pagamento.csv");
     }
 
-    // Metodos de regras de negocio
+    // Regras de negócio
     public void atualizarStatus(StatusPagamento novoStatus) {
-        this.status = novoStatus;
+        this.setStatus(novoStatus);
         this.setUpdatedAt(LocalDateTime.now());
         this.update(this.getId(), this);
     }
 
     public void atualizarStatusPorRespostaTransacao(String respostaTransacao) {
-        if ("APROVADO".equalsIgnoreCase(respostaTransacao)) {
-            this.setStatus(StatusPagamento.APROVADO);
-        } else if ("RECUSADO".equalsIgnoreCase(respostaTransacao)) {
-            this.setStatus(StatusPagamento.RECUSADO);
-        } else if ("PENDENTE".equalsIgnoreCase(respostaTransacao)) {
-            this.setStatus(StatusPagamento.PENDENTE);
-        } else {
-            this.setStatus(StatusPagamento.FORMA_PAGAMENTO_INVALIDA);
+        switch (respostaTransacao.toUpperCase()) {
+            case "APROVADO" -> this.setStatus(StatusPagamento.APROVADO);
+            case "RECUSADO" -> this.setStatus(StatusPagamento.RECUSADO);
+            case "PENDENTE" -> this.setStatus(StatusPagamento.PENDENTE);
+            default -> this.setStatus(StatusPagamento.FORMA_PAGAMENTO_INVALIDA);
         }
         this.setUpdatedAt(LocalDateTime.now());
         this.update(this.getId(), this);
@@ -49,26 +42,21 @@ public class SolicitacaoPagamentoModel extends Model<SolicitacaoPagamentoModel> 
 
     public TransacaoModel gerarTransacao() {
         List<TransacaoModel> transacoes = new TransacaoModel().list();
-        long maxId = 0L;
-        for (TransacaoModel t : transacoes) {
-            if (t.getId() != null && t.getId() > maxId) {
-                maxId = t.getId();
-            }
-        }
-        long novoId = maxId + 1;
+        long novoId = transacoes.stream()
+                .mapToLong(t -> t.getId() != null ? t.getId() : 0)
+                .max().orElse(0) + 1;
+
         TransacaoModel transacao = new TransacaoModel();
         transacao.setId(novoId);
         transacao.setIdSolicitacaoPagamento(this.getId());
         transacao.setValorTotal(this.valorTotal);
         transacao.setFormaPagamento(this.formaPagamentoModel);
+
         transacao.save(transacao);
-        this.formaPagamentoModel.save(formaPagamentoModel);
         this.setStatus(StatusPagamento.PROCESSANDO);
-        transacao.setFormaPagamento(this.formaPagamentoModel);
 
         return transacao;
     }
-
 
     public TransacaoModel validarDadosPagamento() {
         if (this.formaPagamentoModel != null && this.formaPagamentoModel.validarDados()) {
@@ -78,6 +66,11 @@ public class SolicitacaoPagamentoModel extends Model<SolicitacaoPagamentoModel> 
         return null;
     }
 
+    public StatusPagamento getStatus() {
+        return status != null ? status : StatusPagamento.PENDENTE;
+    }
+
+    // CSV
     @Override
     public SolicitacaoPagamentoModel fromCSV(String csvLine) {
         try {
@@ -85,11 +78,10 @@ public class SolicitacaoPagamentoModel extends Model<SolicitacaoPagamentoModel> 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
             SolicitacaoPagamentoModel obj = new SolicitacaoPagamentoModel();
-
-            obj.setId(parseLong(values[0]));
-            obj.setCreatedAt(values[1].equals("null") ? null : LocalDateTime.parse(values[1], formatter));
-            obj.setUpdatedAt(values[2].equals("null") ? null : LocalDateTime.parse(values[2], formatter));
-            obj.setIdPedido("null".equals(values[3]) ? null : parseLong(values[3]));
+            obj.setId(Long.parseLong(values[0]));
+            obj.setCreatedAt("null".equals(values[1]) ? null : LocalDateTime.parse(values[1], formatter));
+            obj.setUpdatedAt("null".equals(values[2]) ? obj.getCreatedAt() : LocalDateTime.parse(values[2], formatter));
+            obj.setIdPedido("null".equals(values[3]) ? null : Long.parseLong(values[3]));
             obj.setStatus(StatusPagamento.valueOf(values[4]));
             obj.setValorTotal(Float.parseFloat(values[5]));
 
@@ -104,15 +96,14 @@ public class SolicitacaoPagamentoModel extends Model<SolicitacaoPagamentoModel> 
     public String toCSV() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return String.join(",",
-            String.valueOf(getId()),
-            getCreatedAt() == null ? "null" : getCreatedAt().format(formatter),
-            getUpdatedAt() == null ? "null" : getUpdatedAt().format(formatter),
-            String.valueOf(getIdPedido()),
-            status.name(),
-            String.valueOf(getValorTotal())
+                String.valueOf(getId()),
+                getCreatedAt() == null ? "null" : getCreatedAt().format(formatter),
+                getUpdatedAt() == null ? "null" : getUpdatedAt().format(formatter),
+                getIdPedido() == null ? "null" : String.valueOf(getIdPedido()),
+                status.name(),
+                String.valueOf(valorTotal)
         );
     }
-
 
     @Override
     public List<String> getCsvFieldOrder() {

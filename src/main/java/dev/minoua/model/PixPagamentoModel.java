@@ -14,10 +14,6 @@ public class PixPagamentoModel extends FormaPagamentoModel {
         super("pix_pagamento.csv");
     }
 
-    @Override
-    public String getTipo() {
-        return "PIX";
-    }
 
     @Override
     public PixPagamentoModel fromCSV(String csvLine) {
@@ -38,7 +34,7 @@ public class PixPagamentoModel extends FormaPagamentoModel {
 
     @Override
     public boolean validarDados() {
-        return true;
+        return codigo != null && !codigo.isEmpty();
     }
 
     @Override
